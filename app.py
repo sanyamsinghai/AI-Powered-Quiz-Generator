@@ -637,11 +637,18 @@ Output format (strict JSON array):
         questions = json.loads(raw)
         logger.debug(f"Parsed {len(questions)} questions from API response")
 
-        # Validate structure
+        # Validate structure and normalize whitespace
         for i, q in enumerate(questions):
             assert "question" in q and "options" in q and "answer" in q and "explanation" in q
             assert len(q["options"]) == 4
-            assert q["answer"] in q["options"]
+            # Normalize all strings by stripping whitespace
+            q["question"] = q["question"].strip()
+            q["options"] = [opt.strip() for opt in q["options"]]
+            q["answer"] = q["answer"].strip()
+            q["explanation"] = q["explanation"].strip()
+            # Verify answer is in options
+            assert q["answer"] in q["options"], f"Q{i+1}: Answer '{q['answer']}' not found in options: {q['options']}"
+            logger.debug(f"Q{i+1}: Normalized answer = '{q['answer']}'")
         
         logger.info(f"✅ Quiz generated successfully - {len(questions)} questions created")
         return questions, None
@@ -900,8 +907,15 @@ if st.session_state.questions and not st.session_state.submitted:
             st.session_state.submitted = True
             st.session_state.score = sum(
                 1 for i, q in enumerate(qs)
-                if answers[i] == q["answer"]
+                if answers[i].strip() == q["answer"].strip()
             )
+            # Log answer details for debugging
+            logger.debug(f"Quiz submitted with {len(answers)} answers")
+            for i, q in enumerate(qs):
+                user_ans = answers[i].strip()
+                correct_ans = q["answer"].strip()
+                is_correct = user_ans == correct_ans
+                logger.debug(f"Q{i+1}: User='{user_ans}' | Correct='{correct_ans}' | Match={is_correct}")
             st.rerun()
 
 
