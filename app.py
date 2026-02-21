@@ -559,14 +559,23 @@ def generate_quiz(topic, difficulty, num_q, api_key, base_url, model, auth_type=
         
         logger.info(f"Generating quiz: topic='{topic}', difficulty='{difficulty}', count={num_q}, model='{model}'")
         
-        prompt = f"""You are an expert quiz creator. Generate exactly {num_q} multiple-choice questions about "{topic}" at {difficulty} difficulty.
+        system_message = """You are an expert quiz creator with deep knowledge across all subjects. 
+Your job is to create factually CORRECT multiple-choice questions. 
+Before you finalize each answer, verify it is 100% factually accurate and matches the difficulty level.
+NEVER guess or provide uncertain answers.
+All answers must be verifiable and correct."""
 
-Rules:
-- Each question must have exactly 4 options: A), B), C), D)
-- Exactly one option is correct
-- Explanations must be concise (1-2 sentences max)
-- Questions should match the difficulty: Easy=basic recall, Medium=application, Hard=analysis/edge-cases
-- Do NOT include any markdown, code fences, or commentary — output raw JSON only
+        prompt = f"""Generate exactly {num_q} multiple-choice questions about "{topic}" at {difficulty} difficulty.
+
+Critical Rules:
+1. Each question must have EXACTLY 4 options: A), B), C), D)
+2. EXACTLY ONE option is the correct answer
+3. The "answer" field MUST be copied VERBATIM from the options array - verify it matches exactly
+4. ALL answers must be 100% factually correct and verifiable
+5. Double-check each answer for factual accuracy BEFORE including it
+6. Explanations must be concise (1-2 sentences max)
+7. Questions must match difficulty: Easy=basic recall, Medium=application, Hard=analysis/edge-cases
+8. Do NOT include any markdown, code fences, or commentary — output ONLY raw JSON
 
 Output format (strict JSON array):
 [
@@ -576,7 +585,12 @@ Output format (strict JSON array):
     "answer": "A) ...",
     "explanation": "Short explanation."
   }}
-]"""
+]
+
+IMPORTANT: Before responding, verify:
+✓ Each answer matches EXACTLY one option in the array
+✓ Each answer is 100% factually correct
+✓ The question and answer pair is coherent and correct"""
 
         # Build headers with auth
         headers = {
@@ -590,8 +604,11 @@ Output format (strict JSON array):
         
         payload = {
             "model": model.strip(),
-            "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.75,
+            "messages": [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": prompt}
+            ],
+            "temperature": 0.3,
             "max_tokens": 4096,
         }
         
