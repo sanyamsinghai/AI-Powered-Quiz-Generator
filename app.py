@@ -37,12 +37,12 @@ logger.addHandler(file_handler)
 logger.addHandler(console_handler)
 
 logger.info("=" * 80)
-logger.info("QuizCraft Application Started")
+logger.info("SmartQuizo Application Started")
 logger.info("=" * 80)
 
 # ─── Page config ───────────────────────────────────────────────────────────────
 st.set_page_config(
-    page_title="QuizCraft — AI Quiz Generator",
+    page_title="SmartQuizo — AI Quiz Generator",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -705,7 +705,7 @@ for k, v in DEFAULTS.items():
 
 # ─── SIDEBAR ──────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown('<div class="sidebar-logo">⚡ QuizCraft</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sidebar-logo">⚡ SmartQuizo</div>', unsafe_allow_html=True)
 
     # ── API Provider ──
     st.markdown('<div class="section-eyebrow">API Provider</div>', unsafe_allow_html=True)
@@ -800,7 +800,7 @@ with st.sidebar:
 # ─── MAIN ─────────────────────────────────────────────────────────────────────
 # Header
 st.markdown("""
-<div class="brand">⚡ QuizCraft AI</div>
+<div class="brand">⚡ SmartQuizo</div>
 <div class="hero-title">Test Your Knowledge.<br>Powered by AI.</div>
 <div class="hero-sub">
   Pick your AI provider, enter your API key, add a topic — get a custom quiz in seconds.
